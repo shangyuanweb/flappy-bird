@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			.body{
+				width: 343px;height: 480px;
+				position: relative;
+				margin: 50px 50px;
+				background: url(flappybird/bg.jpg);
+				/*overflow: hidden;*/
+			}
+			.btn1{
+				outline: none;
+				width: 87px;height: 31px;
+				/*border: none;*/
+				position: absolute;
+				left: 80px;
+				top: 300px;
+				background: url(flappybird/start.jpg);
+			}
+			.btn2{
+				outline: none;
+				width: 87px;height: 31px;
+				/*border: none;*/
+				position: absolute;
+				left: 190px;
+				top: 300px;
+				background: url(flappybird/submit.jpg);
+			}
+			.logo{
+				margin: 100px 50px;		
+					
+			}
+			.startbird{
+				display: block;
+				position: absolute;
+				left: 255px;
+				animation: load 0.8s ease-in-out alternate-reverse infinite ;
+			}
+			.sliderwrap{
+				position: absolute;
+				width: 690px;
+				bottom:43px;
+				left: 0px;
+				z-index: 3;
+			}
+			.sliderwrap img{
+				float: left;
+			}
+			.mainbird{
+				position: absolute;
+				left: 60px;
+				display: block;	
+			}
+			@-webkit-keyframes load{
+				from{
+					top:130px	
+				}
+				to{
+					top:150px	
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="body">
+			<button class="btn1"></button>
+			<button class="btn2"></button>
+			<img class="logo" src="flappybird/head.jpg" alt="" />
+			<img class="startbird" src="flappybird/bird0.png" alt="" />
+			<div class="sliderwrap">
+				<img class="slider slider1" src="flappybird/slider.jpg" alt="" />
+				<img class="slider slider2" src="flappybird/slider.jpg" alt="" />
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		
+	//1 开始按钮
+	//2 小鸟的运动 ——通过控制top值来实现
+		//通过事件来控制
+	//3 生成柱子
+		//定时器生成  
+	//4 柱子的移动 left值
+		//完全移出可视区的柱子被删除
+		//碰撞检测
+	//5 小鸟通过柱子——小鸟的left值大于柱子的left值+宽度
+		//加分
+	//如果小鸟碰撞柱子，
+		//游戏结束,清除定时器
+		
+	var sliderwrap = document.querySelector(".sliderwrap");
+		var x = 0;
+		var timerslider = setInterval(function(){
+			x += 7;
+			if(x>=340){
+				x = 0;
+			}else{
+				sliderwrap.style.left = -x + "px"
+			}
+		},60)
+	var wrap = document.querySelector(".body");
+	var btn1 = document.querySelector(".btn1");
+	var btn2 = document.querySelector(".btn2");
+	var startbird = document.querySelector(".startbird");
+	var logo = document.querySelector(".logo");
+	
+	var srcarr1 = ["flappybird/up_bird1.png","flappybird/up_bird0.png","flappybird/down_bird1.png","flappybird/down_bird0.png"];
+	var birdarr = [];
+	for(var i=0;i<4;i++){
+		var newb = document.createElement("img");
+		newb.src = srcarr1[i];
+		birdarr.push(newb);
+	}
+	//console.log(birdarr)
+	var srcarr2 = ["flappybird/up_mod.png","flappybird/down_mod.png"];
+	var srcarr3 = ["flappybird/up_pipe.png","flappybird/down_pipe.png"];
+	var up = 0;
+	var uptimer;
+	var downtimer;
+	var mainbird;
+	var nowH
+	var H
+	var uppost;
+	var downpost;
+	var tallup;
+	var talldown;
+	var click = true;
+	
+	var y = 0;
+	var endtimer;
+	
+		clearInterval(uptimer);	
+		clearInterval(downtimer);
+		clearInterval(creatposttimer);
+		clearInterval(posttimer);
+		clearInterval(knocktesttimer);
+		clearInterval(numtimer);
+		clearInterval(endtimer)
+		
+		btn1.onclick = function(){
+			btn1.remove();//删
+			btn2.remove();//删
+			startbird.remove();//删
+			logo.remove();//删
+//——————————————插入鸟——————————————————————————————————————			
+		mainbird = document.createElement("div");
+		mainbird.className = "mainbird";
+		mainbird.style.top =0;
+		mainbird.style.zIndex =100;
+		nowH = parseInt(mainbird.style.top);
+			nowH=0;
+		mainbird	.appendChild(birdarr[2])
+		wrap.appendChild(mainbird);
+		creatpost();//creat a post
+		postmove();//post moving
+		fly();//bird-up/down
+		test();//knocktesttimer
+		boardcreat();
+		jifenban();
+		endele();
+		endpage();
+		}//btn.onclick
+		
+var upposts = document.getElementsByClassName("upzhuzi");
+var downposts = document.getElementsByClassName("downzhuzi");
+var creatposttimer;
+function creatpost(){
+	//———————————————插-上柱子—————————————————————————————————————
+		creatposttimer = setInterval(function(){
+		uppost = document.createElement("div");
+		tallup = rand(30,150);
+		uppost.className = "upzhuzi"
+		uppost.style.height = tallup+"px";	
+		uppost.style.width = 62+"px";
+		uppost.style.left = 343+"px";
+		uppost.style.top = 0+"px";
+		uppost.style.position = "absolute";
+		uppost.style.overflow = "hidden";
+		uppost.style.backgroundImage = "url("+srcarr2[0]+")";
+		uppost.style.backgroundRepeat = "Repeat";
+		//———————————上柱子头————————————————————
+		uphead = document.createElement("img");
+		uphead.src = srcarr3[0];
+		uphead.style.marginTop = tallup-60 +"px"
+		uppost.appendChild(uphead)
+//———————————————插-下柱子—————————————————————————————————————
+		downpost	 = document.createElement("div");
+		talldown = 300-tallup;
+		downpost.className = "downzhuzi"
+		downpost.style.height = talldown+"px";	
+		downpost.style.width = 62+"px";
+		downpost.style.left = 343+"px";
+		downpost.style.bottom = 56+"px";
+		downpost.style.position = "absolute";
+		downpost.style.overflow = "hidden";
+		downpost.style.backgroundImage = "url("+srcarr2[1]+")";
+		downpost.style.backgroundRepeat = "Repeat";
+		//———————————下柱子头————————————————————
+		downhead = document.createElement("img");
+		downhead.src = srcarr3[1];
+		downpost.appendChild(downhead);
+		
+		wrap.appendChild(uppost)
+		wrap.appendChild(downpost)		
+	},2000)
+}
+//———————柱子距离经时变化—————————
+var posttimer;
+function postmove(){
+	    posttimer = 	setInterval(function(){
+		for(var i=0;i<upposts.length;i++){
+			nowL = parseInt(upposts[i].style.left);
+			downposts[i].style.left = nowL-1+ "px";
+			upposts[i].style.left = nowL-1+ "px";
+		if(upposts.length>0){
+			if(nowL<=-62){
+				downposts[i].remove();
+				upposts[i].remove();
+			}
+		}
+		}
+	},10)
+}
+var knocktesttimer
+function test(){
+	  knocktesttimer = setInterval(function(){
+		if(downposts.length>0){
+			H = parseInt(mainbird.style.top);
+			nowL = parseInt(downposts[0].style.left);
+			tallup = upposts[0].offsetHeight;
+			talldown = downposts[0].offsetHeight;
+			//———————————————碰撞检测————————————————————————————————————————————————
+			if(H>390||(nowL<=90&&nowL>60&&H<=tallup)||(H<tallup&&Math.abs(60-nowL)<30)
+			||(H>tallup+60&&nowL<=90&&nowL>60)||(H>tallup+70&&Math.abs(60-nowL)<30)){
+						clearInterval(creatposttimer);
+						//clearInterval(uptimer);
+						clearInterval(posttimer);
+						clearInterval(knocktesttimer);
+						clearInterval(numtimer);
+						click=false;
+						record.push(s);
+						console.log(record);
+						pscore.innerText = s;
+			}
+		}	
+},100)
+}
+var n = 3;
+function fly(){
+	downtimer = setInterval(function(){
+		clearInterval(uptimer);
+		//———————鸟高度经时变化—————————
+		n = -1*n+5;
+		mainbird.innerHTML ="" ;
+		mainbird	.appendChild(birdarr[n]);
+		nowH = parseInt(mainbird.style.top);
+		if(nowH>390){
+			clearInterval(downtimer);
+			clearInterval(uptimer);	
+			clearInterval(creatposttimer);
+			clearInterval(posttimer);
+		}
+		mainbird.style.top = nowH+1 + "px";
+					//------鸟高度点击事件-------
+					wrap.onclick = function(){
+						if(click){
+						clearInterval(downtimer);
+						clearInterval(uptimer);
+						mainbird.src = srcarr1[0];
+						nowH = parseInt(mainbird.style.top);
+						up=0;
+						uptimer = setInterval(function(){
+							y = -1*y+1;
+							mainbird.innerHTML = "";
+							mainbird	.appendChild(birdarr[y]);
+							up+=2;
+							if(up<30){
+								clearInterval(downtimer);
+								mainbird.style.top = nowH-up + "px";
+							}else{
+								clearInterval(uptimer);
+								fly();
+							}
+						},10)
+						}
+					}
+	},10)//interval
+}//fly
+//——————————————计分板——————————————————————	
+var numsrc = ["0.png","1.jpg","2.jpg","3.jpg","4.jpg","5.jpg","6.jpg","7.jpg","8.jpg","9.jpg"]
+var numarr = [];
+var scoreboard = document.getElementsByClassName("boardd");
+var record = [];
+var s=0;
+var board;
+ for(var i=0;i<numsrc.length;i++){
+ 	var newnum = new Image();
+ 	newnum.src = "flappybird/"+numsrc[i];
+ 	numarr.push(newnum);
+ }
+ var numtimer;
+ function jifenban(){
+ 	   numtimer = setInterval(function(){
+ 	s++;
+ 	if(s>=99){
+ 		board.style.width =84+"px";
+ 		board.innerHTML = "";
+ 		board.appendChild(numarr[Math.floor(s/100)]);
+ 		board.appendChild(numarr[Math.floor((s-Math.floor(s/100)*100)/10)]);
+ 		board.appendChild(numarr[s%10]);
+ 	}else{
+ 		board.innerHTML = "";
+ 		board.appendChild(numarr[Math.floor(s/10)].cloneNode(true));
+ 		board.appendChild(numarr[s%10].cloneNode(true));}
+ 	},500)
+
+ }
+	function boardcreat(){
+	    board = document.createElement("div");
+		board.className = "boardd";
+		board.style.zIndex = 200;
+		board.style.height = 39+"px";
+		board.style.width = 56+"px";
+		//board.style.margin = "10px auto";
+		board.style.position = "absolute";
+		board.style.top = "10px";
+		board.style.left = "50%";
+		board.style.transform = "translate(-50%)";
+		board.appendChild(numarr[0])
+		board.appendChild(numarr[0].cloneNode(true))
+		wrap.appendChild(board);
+}
+	//—————————————结束页—————————————————————————
+	var end = document.createElement("div");
+	var over = new Image();
+	var mess = new Image();	
+	var ok = new Image();
+	var share = new Image();
+	var pscore = document.createElement("p");
+	var medal = document.createElement("p");	
+	var best = document.createElement("p");	
+	    
+	function endele(){
+		end.style.width = 269+"px";
+	    end.style.position = "absolute";
+	    end.style.top = 485+"px";
+	    end.style.left = 40+"px";
+	    end.style.zIndex = 300;
+	
+		over.src = "flappybird/game_over.jpg";
+	    over.style.margin = "0px 0 0 20px";
+	
+		mess.src = "flappybird/message.jpg";
+		mess.style.margin = "50px auto";
+	
+		ok.src = "flappybird/ok.jpg";
+		ok.style.margin = "0px 0 0 20px";
+	
+		share.src = "flappybird/score.jpg";	
+		share.style.margin = "0px 0 0 40px";
+		share.style.width = "96px";
+	
+		pscore.style.position = "absolute";
+		pscore.style.top = "120px";
+		pscore.style.right = "45px";
+		pscore.innerText = s;
+		pscore.style.color = "#F37020";
+	
+		medal.style.position = "absolute";
+		medal.style.top = "150px";
+		medal.style.left = "35px";
+		medal.style.color = "#F37020";
+	
+		best.style.position = "absolute";
+		best.style.top = "170px";
+		best.style.right = "30px";
+		best.innerText = 61515;
+		best.style.color = "#F37020";
+			end.appendChild(medal);
+			end.appendChild(pscore);end.appendChild(best);
+			end.appendChild(over);end.appendChild(mess);
+			end.appendChild(ok);end.appendChild(share);
+			wrap.appendChild(end);
+	}
+	function endpage(){
+		console.log(click)
+		//setTimeout(function(){
+		endtimer = setInterval(function(){
+			if(!click){
+				if(parseInt(end.style.top)<=50){
+					clearInterval(endtimer);
+				}else{
+					end.style.top = parseInt(end.style.top)-2 +"px";
+						if(s>500){
+							medal.innerText = "GOLD";
+						}else if(s<500&&s>200){
+							medal.innerText = "Argent";
+						}else if(s<200){
+							medal.innerText = "Cuivre";
+						}
+				}
+			}
+		},10)
+	}
+	function rand(min,max){
+			return Math.floor(Math.random()*(max-min)+min)
+	}	
+	</script>
+</html>
