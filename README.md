@@ -1,7 +1,7 @@
 # 飞扬的小鸟游戏 简易版
 ##预览地址： https://shangyuanweb.github.io/flappy-bird/
 <br>
-   ##技术点：html5、css、javascript
+   ##技术点：html5、css、javascript<br>
    ##游戏分解：<br>
 	//1 开始按钮<br>
 	//2 小鸟的运动 ——通过控制top值来实现<br>
